@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="format-detection" content="telephone=no">
+        <meta name="msapplication-tap-highlight" content="no">
+        <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
+        <meta name="color-scheme" content="light dark">
+        <link rel="stylesheet" href="css/materialize.min.css">
+        <link rel="stylesheet" href="css/jquery-ui.min.css">
+        <link rel="stylesheet" href="css/all.min.css">
+        <title></title>
+        <style>
+            * { -webkit-tap-highlight-color: rgba(0,0,0,0); }
+
+            @font-face { font-family: "FibraOneLight"; src: url("font/FibraOneLight.ttf") format("ttf"), url("font/FibraOneLight.otf") format("opentype"); }
+
+            body, .fullscreen {
+                overflow:auto;
+                -webkit-touch-callout: none;
+                -webkit-text-size-adjust: none;
+                font-family: 'FibraOneLight', system-ui, -apple-system, -apple-system-font, 'Segoe UI', 'Roboto', sans-serif;
+                font-size:14px;
+                height:100vh;
+                min-height:100%;
+                max-height:100%;
+                margin:0px;
+                padding:0px;
+                padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+                text-align:left;
+                width:100%;
+                z-index:2; 
+            }
+
+            body { overflow:hidden; }
+
+            .screen { display:none; }
+
+            .fullscreen { padding-bottom:4rem; }
+
+            .progress { background-color:#7f8a8e; } .progress .determinate, .progress .indeterminate { background-color:#212420; }
+
+            .appsplash { position:absolute; left:50%; top:50%; height:50px; width:225px; text-align:center; padding:0px 0px 0px 0px; margin:-115px 0px 0px -112px; }
+        </style>
+        
+        <script src="cordova.js"></script>
+        <script src="js/jquery.min.js"></script>
+        <script src="js/jquery-ui.min.js"></script>
+        <script src="js/jquery.mask.min.js"></script>
+        <script src="js/materialize.min.js"></script>
+        <script src="js/index.js"></script>
+        <script src="custom.js"></script>
+
+        <script src="js/sha512.min.js"></script>
+        <script src="js/canvas.min.js"></script>
+        <script src="js/flashcanvas.js"></script>
+        <script src="js/resize.js"></script>
+        <script src="js/jSignature.min.js"></script>
+        <script src="js/qrcode.min.js"></script>
+        <script src="js/all.min.js"></script>
+    </head>
+    <body>
+        <div id="app" class="fullscreen" style="display:none;"></div>
+
+        <div id="loading" class="fullscreen" style="display:block;z-index:999999999;">
+            <div class="appsplash">
+                <img src="img/logo.png" class="encolor" style="height:128px;width:auto;">
+                <div class="progress" style="margin:1rem auto;max-width:100px;display:none;">
+                    <div class="determinate" style="width: 0%"></div>
+                </div>
+            </div>
+            <script>
+                /* ####### ATENCAO!!! NAO ALTERE ESTE ARQUIVO. */
+
+                var serveraddress = ((typeof serveraddress == "undefined") ? "/" : serveraddress);
+
+                var appcss = "";
+                var apphtml = "";
+                var appjs = "";
+                var appversion = "";
+
+                var progress = 0;
+                var maxprogress = 90;
+                var waitload = null;
+                var datatime = parseInt(new Date().getTime());
+                var loading = setInterval(function(){ 
+                        if(progress < maxprogress) progress = progress + (parseInt(Math.floor(Math.random() * 9))); 
+                        else clearInterval(loading); 
+                        $('#loading .progress .determinate').attr('style','width:'+progress+'%;');
+                    }, 234);
+
+                var gi = function(key) {
+                    var rt = window.localStorage.getItem(key);
+                    return ((rt == undefined) || (rt == null) || (rt == '')) ? '' : rt; }
+
+                function updateapp() {
+                    $.post(serveraddress+"api/globals/resources?t="+datatime,{ 'current':gi('app.version') },function(data){
+                        progress = 100;
+                        if(!data.result) return;
+                        try { window.localStorage.setItem('app.html',data.body); } catch(e) { }
+                        try { window.localStorage.setItem('app.css',data.style); } catch(e) { }
+                        try { window.localStorage.setItem('app.js',data.script); } catch(e) { }
+                        try { window.localStorage.setItem('app.version',data.version); } catch(e) { }
+                    }).always(function(){
+                        setTimeout(function(){ 
+                            if((appcss = gi('app.css')) != "") $('body #autoservercss').html(appcss);
+                            if((apphtml = gi('app.html')) != "") $('body #app').append(apphtml);
+                            if((appjs = gi('app.js')) != "") $('body').append(`<script id="autoserverjs">`+appjs+`<`+`/script>`);
+                            $('body').find('#app').show().parent().find('#loading').hide(); 
+                            if(typeof onload == 'function') onload();
+                        },500);
+                    });
+                }
+
+                var c = ""; try { c = window.localStorage.getItem('darktheme'); } catch(e) { }
+                $('html').attr('darkui',c);
+
+                $(document).ready(function(){ try {
+                    $.ajaxSetup ({ cache: false });
+                    $('#loading .progress').fadeIn(1234);
+                    if((appcss = gi('app.css')) != "") $('body').prepend(`<style id="autoservercss">`+appcss+`</style>`);
+                    else $('body').prepend(`<style id="autoservercss"></style>`);
+                    setTimeout(function(){ updateapp(); },500);
+                  } catch(e) { console.log(e); } 
+                });
+            </script>
+        </div>
+    </body>
+</html>

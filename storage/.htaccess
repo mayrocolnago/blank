@@ -1,0 +1,7 @@
+Options +FollowSymLinks
+RewriteEngine On
+
+ErrorDocument 404 /storage/index.php
+
+RewriteCond %{REQUEST_FILENAME} upload\.js$
+RewriteRule ^(.*)$ upload.php [NC,L]

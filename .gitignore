@@ -1,0 +1,11 @@
+config.json
+custom.php
+.DS_Store
+apphtml
+appcss
+appjs
+/cordova/node_modules/
+/cordova/platforms/
+/cordova/plugins/
+/cordova/package-lock.json
+/cordova/package.json
