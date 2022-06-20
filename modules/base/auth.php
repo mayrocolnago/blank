@@ -8,7 +8,7 @@ class auth {
     private static $classloaded = false;
     private static $usersloaded = false;
 
-    private static $secret = "ZEhWa2IyNHRhVzVtYjNNdGJXRjVjbTh0WVhCdw";
+    private static $secret = "[A SECRET]";
 
     public static $excludemethods = ['resources','isauthed','createaccount','login','logout'];
 
