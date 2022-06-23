@@ -73,10 +73,10 @@ function fileuploadintervalfunc() {
         success: function (updata) {
             retorno.elapsedtime = ((new Date()).getTime() / 1000) - retorno.sendtime;
             retorno.result = (updata.result) ? updata.result : '';
-            retorno.server = (updata.server) ? updata.server : '';
-            retorno.buffer = (updata.buffer) ? updata.buffer : '';
             retorno.group = (updata.group) ? updata.group : '';
             retorno.url = (updata.url) ? updata.url : '';
+            retorno.server = (updata.server) ? updata.server : '';
+            retorno.buffer = (updata.buffer) ? updata.buffer : '';
             try { atual.ondone(retorno); } catch(e) { console.log('could not callback ondone upload script',e); }
             upfilescriptuploading = false; upfilequeue.shift();
         },error: function(e) { upfilescriptuploading = false; } });

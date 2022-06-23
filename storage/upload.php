@@ -44,16 +44,18 @@ if(strpos(($_SERVER['REDIRECT_URL'] ?? ''),'/upload.js') !== false) {
 } else
   @header('Content-Type: application/json');
 
-function exitcod($h=null,$s='') { 
-  if($h !== null) return ($_SERVER['returne'] = ['h'=>$h, 's'=>$s]);
-  $r = array('result'=>($h = ($_SERVER['returne']['h'] ?? ""))); 
-  if(($s = ($_SERVER['returne']['s'] ?? "")) != '') $r['err'] = $s; 
-  $r['url'] = ($server = 'http'.((!empty($_SERVER['HTTPS'] ?? '')) ? 's':'').'://'.($_SERVER['SERVER_NAME'] ?? 'localhost').'/storage/').$h;
-  $r['server'] = $server;
-  $r['group'] = ($_SERVER['GROUP'] ?? null);
-  $r['buffer'] = (@ob_get_contents());
+function exitcod($result=null,$msg='') { 
+  $buffer = @ob_get_contents();
   @ob_end_clean();
-  exit(json_encode($r)); }
+  exit(json_encode([
+    'result'=>$result,
+    'group' => ($_SERVER['GROUP'] ?? null),
+    'url' => (($server = 'http'.((!empty($_SERVER['HTTPS'] ?? '')) ? 's':'').'://'.($_SERVER['SERVER_NAME'] ?? 'localhost').'/storage/').$result),
+    'server' => $server,
+    'buffer' => $buffer,
+    'msg' => $msg
+  ]));
+}
 
 function getext($name = '') {
   if(isset($_REQUEST['e'])) return '.'.substr(preg_replace('/[^a-zA-Z0-9]/','',$_REQUEST['e']),0,9);
@@ -68,19 +70,17 @@ function storefile($filename, $content) {
     $strtotime = strtotime('now');
     $uid = ((isset($_COOKIE['uid'])) ? (intval($_COOKIE['uid']) - 999) : '');
     //verifica se a referencia do arquivo existe. se nao, insere
-    if(pdo_query("UPDATE vault_files SET lastchange='$strtotime' WHERE filepath='/$filename' order by id desc limit 1") < 1)
+    if(!empty($exist = ($query = pdo_fetch_item(pdo_query(
+        "SELECT * FROM vault_files WHERE hashcheck='$checksum' order by id desc limit 1"
+      )))['filepath'] ?? ''))
+        $filename = str_replace(' ','/',trim(str_replace('/',' ',$exist)));
+    else
        pdo_query("INSERT INTO vault_files (filepath,hashcheck,lastseen,lastchange,registered,uid) ".
                  "VALUES ('/$filename', '$checksum', '0', '0', '$strtotime', '$uid') ");
-    //verifica se o hash existe e salva o arquivo
-    if(pdo_query("UPDATE vault_hashes SET lastcheck='$strtotime' WHERE hashcheck='$checksum' order by id desc limit 1") > 0)
-      return $filename;
-    else
-      if(pdo_query("INSERT INTO vault_hashes (hashcheck,registered,lastcheck,content) VALUES ('$checksum','$strtotime', '0', ?)",[$content]) > 0)
-        return $filename;
-    return '';
+    if(pdo_query("UPDATE vault_hashes SET lastcheck='$strtotime' WHERE hashcheck='$checksum' order by id desc limit 1") < 1)
+        pdo_query("INSERT INTO vault_hashes (hashcheck,registered,lastcheck,content) VALUES ('$checksum','$strtotime', '0', ?)",[$content]);
+    exitcod($filename);
 }
-
-register_shutdown_function('exitcod');
 
 $source = (isset($_REQUEST['f'])) ? preg_replace('/[^0-9a-zA-Z\-\_]/','',$_REQUEST['f']) : 'non';
 $path = (isset($_REQUEST['p'])) ? preg_replace('/[^a-z\/\_]/','',$_REQUEST['p']) : '';
@@ -129,14 +129,14 @@ if((isset($_REQUEST['download'])) && (isset($_REQUEST['file']))) {
   while($buffer = @fread($fp_remote, 8192)) @fwrite($fp_local, $buffer);
   @fclose($fp_remote); @fclose($fp_local);
   if(!file_exists($df)) exitcod('','error downloading. probably /tmp/ permission issue');
-  else exitcod(storefile($novonome, @file_get_contents($df)));
+  else storefile($novonome, @file_get_contents($df));
 
   //metodo via copia de url externa: ?fromurl=1&file=http://remote/image.png
 } else
   if((isset($_REQUEST['fromurl'])) && (isset($_REQUEST['file']))) {
     $novonome = ($path . ($nome .= getext($_REQUEST['f'] ?? $_REQUEST['file'])));
     if(!(@copy($_REQUEST['file'], ($df = "/tmp/".$nome)))) exitcod('','error. copy not completed');
-    else exitcod(storefile($novonome, @file_get_contents($df)));
+    else storefile($novonome, @file_get_contents($df));
 
     //metodo via base64: ?base64=1&file=base64:file;ABCdefGHT123==
   } else
@@ -146,22 +146,23 @@ if((isset($_REQUEST['download'])) && (isset($_REQUEST['file']))) {
       list(, $tipo) = explode(':', $tipo);
       list(, $dados) = explode(',', $dados);
       $arquivo_tmp = base64_decode($dados);
-      exitcod(storefile($novonome, $arquivo_tmp));
+      storefile($novonome, $arquivo_tmp);
 
       //metodo via escrita direta: ?getfile=1&file=content
     } else
       if((isset($_REQUEST['getfile'])) && (isset($_REQUEST['file']))) {
         $novonome = ($path . ($nome .= getext($_REQUEST['f'] ?? $_REQUEST['file'])));
-        exitcod(storefile($novonome, $_REQUEST['file']));
+        storefile($novonome, $_REQUEST['file']);
 
         //metodo via form upload
       } else
         if((isset($_FILES['file'])) && (!empty(@$_FILES['file']))) {
             $novonome = ($path . ($nome .= getext($_FILES['file']['name'] ?? '')));
             if(!file_exists($df = ($_FILES['file']['tmp_name'] ?? './void'))) exitcod('', 'error. file not found on tmp_dir '.$df);
-            else exitcod(storefile($novonome, @file_get_contents($df)));
+            else storefile($novonome, @file_get_contents($df));
 
         } else
           exitcod('', 'error. no file found on parameters');
 
+register_shutdown_function('exitcod');
 ?>

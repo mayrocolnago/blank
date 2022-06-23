@@ -16,31 +16,4 @@
 
 **Queue**
 
-- [`smsqueue`](queue/smsqueue)
-- emailqueue
-- pagamentoqueue
 - [`process`](queue/process)
-
-**Servicos**
-
-- [`list`](servicos/list)
-- [`agendar`](servicos/agendar)
-- [`agendamentos`](servicos/agendamentos)
-- [`cancelaragendamento`](servicos/cancelaragendamento)
-
-**Pagamento**
-
-- [`statusname`](pagamento/statusname)
-- [`novocliente`](pagamento/novocliente)
-- [`cobrancacartao`](pagamento/cobrancacartao)
-- [`checkcartao`](pagamento/checkcartao)
-- [`pix`](pagamento/pix)
-- [`checkpix`](pagamento/checkpix)
-- estornodepagamento
-
-**Lavacar**
-
-- [`veiculos`](lavacar/veiculos)
-- [`servicos`](lavacar/servicos)
-- [`agendar`](lavacar/agendar)
-- [`horarios`](lavacar/horarios)

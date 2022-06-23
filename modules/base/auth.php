@@ -8,9 +8,9 @@ class auth {
     private static $classloaded = false;
     private static $usersloaded = false;
 
-    private static $secret = "[A SECRET]";
+    private static $secret = SIGNATURE;
 
-    public static $excludemethods = ['resources','isauthed','createaccount','login','logout'];
+    public static $excludemethods = ['resources','process','isauthed','createaccount','login','logout'];
 
     public function database() {
         pdo_query("CREATE TABLE IF NOT EXISTS users (

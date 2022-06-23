@@ -3,10 +3,7 @@ class wiki {
 
     private static $overwrite = true;
 
-    public static $replaces = [
-        "from" => ['asaas'],
-        "to"   => ['pagamento']
-    ];
+    public static $replaces = [];
 
     public function __construct() {
         if(empty($c = preg_replace('/[^a-zA-Z]/','',($_REQUEST['c'] ?? ($_REQUEST['module'] ?? ''))))) return;
@@ -17,7 +14,7 @@ class wiki {
         $params = [];
         $urlres = explode('/',$headpath);
         foreach($_REQUEST as $k => $v)
-            if(!in_array($v,$urlres) && $k !== 'forcewiki')
+            if(!in_array($v,$urlres) && $k !== 'api' && $k !== 'forcewiki')
                 $params[$k] = gettype($v);
         $hash = md5(preg_replace('/[^a-z]/','',substr($headpath,0,25)));
         $qtdp = count($params);
@@ -140,7 +137,7 @@ class wiki {
 
         @file_put_contents($filepath, $file);
         
-        if($renw) self::generatesidebar($wc['path']);
+        if($renw || self::$overwrite) self::generatesidebar($wc['path']);
 
         @ob_end_flush();
     }

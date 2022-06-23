@@ -23,20 +23,8 @@ class queue {
             PRIMARY KEY (`id`))");
     }
 
-    public static function smsqueue() {
-
-    }
-
-    public static function emailqueue() {
-
-    }
-
-    public static function pagamentoqueue() {
-
-    }
-
     public static function process() {
-        return ['smsqueue','emailqueue','pagamentoqueue'];
+        return 1;
     }
 
     public static function appjs() { 

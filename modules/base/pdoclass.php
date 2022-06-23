@@ -226,12 +226,12 @@ if(!function_exists('pdo_connect')) {
 	function jsonextractalias($query) {
 		if(strpos(preg_replace('/[^a-z]/','',strtolower(explode(' ',trim($query))[0] ?? '')),'update') !== false)
           if(!empty($fp = explode(' WHERE ',str_ireplace(' where ',' WHERE ',($query.' WHERE ')))[0] ?? ''))
-            if(!empty($np = preg_replace('!(.*?)([\ |\,])(\w+)\-\>\'(.*?)\'(.*?)\'(.*?)\'(.*?)!', "$1$2$3=json_insert(coalesce($3,'{}'),'$4','$6')$7",
-                            preg_replace('!(.*?)([\ |\,])(\w+)\-\>\>\'(.*?)\'(.*?)\'(.*?)\'(.*?)!', "$1$2$3=json_set(coalesce($3,'{}'),'$4','$6')$7", $fp))))
+            if(!empty($np = preg_replace('!(.*?)([\ |\,|\(])(\w+)\-\>\'(.*?)\'(.*?)\'(.*?)\'(.*?)!', "$1$2$3=json_insert(coalesce($3,'{}'),'$4','$6')$7",
+                            preg_replace('!(.*?)([\ |\,|\(])(\w+)\-\>\>\'(.*?)\'(.*?)\'(.*?)\'(.*?)!', "$1$2$3=json_set(coalesce($3,'{}'),'$4','$6')$7", $fp))))
               $query = str_replace($fp, $np, $query);
 
-        return preg_replace('!(.*?)([\ |\,])(\w+)\-\>\'(.*?)\'(.*?)!', "$1$2json_extract($3,'$4')$5", 
-               preg_replace('!(.*?)([\ |\,])(\w+)\-\>\>\'(.*?)\'(.*?)!', "$1$2json_unquote(json_extract($3,'$4'))$5", $query));
+        return preg_replace('!(.*?)([\ |\,|\(])(\w+)\-\>\'(.*?)\'(.*?)!', "$1$2json_extract($3,'$4')$5", 
+               preg_replace('!(.*?)([\ |\,|\(])(\w+)\-\>\>\'(.*?)\'(.*?)!', "$1$2json_unquote(json_extract($3,'$4'))$5", $query));
 	}
 
 	function recursive_jsonconvert($data, $returnarray=false) {

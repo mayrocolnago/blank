@@ -1,6 +1,6 @@
 echo off
 cd wikis
-echo Enter the wiki repository URL (ex. https://gitlab.com/project.wiki.git):
+echo Enter the wiki repository URL (ex. https://gitlab.com/group/project.wiki.git):
 read repo
 git clone $repo wikigit
 mv wikigit/.git ./

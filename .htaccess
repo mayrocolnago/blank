@@ -2,7 +2,7 @@ Options +FollowSymLinks
 
 RewriteEngine On
 
-RewriteCond %{REQUEST_URI} !(api\/|storage\/|cordova\/|app\.)
+RewriteCond %{REQUEST_URI} !(api\/|storage\/|cordova\/)
 RewriteCond %{ENV:REDIRECT_STATUS} ^$
 RewriteRule ^(.*)$ /public/$1 [NC,L]
 

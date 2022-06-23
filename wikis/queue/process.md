@@ -11,7 +11,6 @@
     "result":"integer",
     "policy":"NULL",
     "header":"NULL",
-    "page":"integer",
     "state":"integer"
   }
 ```
